@@ -24,3 +24,6 @@ htmlcov/
 
 # Repo-specific
 data/
+
+*.md
+!README.md
