@@ -24,3 +24,10 @@ htmlcov/
 
 # Repo-specific
 data/
+
+*.md
+!README.md
+
+# Snakemake driver state
+.snakemake/
+logs/

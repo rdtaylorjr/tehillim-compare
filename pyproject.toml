@@ -1,20 +1,24 @@
 [project]
 name = "tehillim-compare"
-version = "0.1.0"
-description = "Computes similarity between the Psalms from ETCBC/BHSA data via Text-Fabric."
+version = "0.2.0"
+description = "Computes psalm similarities from every tehillim-embeddings representation and BHSA."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 dependencies = [
     "text-fabric[github]>=13.1.0",
     "numpy>=1.26",
+    "scipy>=1.12",
     "pyarrow>=17.0",
     "scikit-learn>=1.4",
+    "embeddings>=0.9.3",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "snakemake>=9.0",
     "ruff>=0.6",
     "mypy>=1.10",
     "deptry>=0.16",
@@ -24,9 +28,12 @@ dev = [
 [tool.deptry]
 known_first_party = ["tehillim_compare"]
 
+[tool.deptry.package_module_name_map]
+embeddings = ["core"]
+
 [tool.deptry.per_rule_ignores]
 # Tools CI invokes, so none of them is ever imported by this package.
-DEP002 = ["pytest", "ruff", "mypy", "deptry", "vulture"]
+DEP002 = ["pytest", "pytest-cov", "ruff", "mypy", "deptry", "vulture", "snakemake"]
 
 [project.scripts]
 tehillim-compare = "tehillim_compare.cli:main"
@@ -43,6 +50,8 @@ tehillim = ["py.typed"]
 
 [tool.ruff]
 line-length = 100
+# CI checks the embeddings package out beside this tree so pip can install it.
+extend-exclude = ["tehillim-embeddings"]
 target-version = "py312"
 
 [tool.ruff.lint]
@@ -82,8 +91,9 @@ max-args = 8
 [tool.ruff.lint.per-file-ignores]
 # A vulture whitelist is by format a list of bare attribute expressions.
 ".vulture-whitelist.py" = ["B018"]
-# The CLI's stdout is its interface.
+# The CLI's stdout is its interface, and the skip report on stderr is what the parity check reads.
 "src/tehillim_compare/cli.py" = ["T201"]
+"src/tehillim_compare/pipeline.py" = ["T201"]
 # Text-Fabric names its features at runtime, so Any is the accurate annotation here.
 "src/tehillim_compare/corpus.py" = ["ANN401"]
 # Test names and bodies are the documentation; annotating every fixture adds noise, not signal.
