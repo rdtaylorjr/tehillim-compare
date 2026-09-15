@@ -1,9 +1,7 @@
-"""Symbols vulture cannot see used: result-record fields read only after serialization."""
+"""Symbols vulture cannot see used: entry points the Snakefile calls."""
 
-from tehillim import analysis, gunkel_genre_index
+from tehillim_compare import driver
 
-#: Reported in the analysis payload rather than read in process, so no call site references them.
-analysis.PermutationResult.null_mean
-analysis.PermutationResult.null_std
-gunkel_genre_index.GunkelClassification.subtype
-gunkel_genre_index.GunkelClassification.citation
+#: Called from the Snakefile, which vulture does not scan.
+driver.cell_provenance
+driver.roots_from_config
