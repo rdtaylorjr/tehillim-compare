@@ -1,6 +1,6 @@
 [project]
 name = "tehillim-compare"
-version = "0.2.0"
+version = "0.2.1"
 description = "Computes psalm similarities from every tehillim-embeddings representation and BHSA."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -11,7 +11,7 @@ dependencies = [
     "scipy>=1.12",
     "pyarrow>=17.0",
     "scikit-learn>=1.4",
-    "embeddings>=0.9.3",
+    "embeddings>=0.10.0",
 ]
 
 [project.optional-dependencies]

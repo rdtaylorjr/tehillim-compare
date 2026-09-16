@@ -8,7 +8,10 @@ from tehillim_compare.stages import Roots, domain_cell, plan_cells, psalms_cell
 
 
 def _roots(tmp_path: Path) -> Roots:
-    for partition in ("domain=lexical/unit=lexeme/construction=icf", "domain=semantic/model=m"):
+    for partition in (
+        "corpus=bhsa/unit=half_verse/domain=lexical/type=lexeme/construction=icf",
+        "corpus=bhsa/unit=half_verse/domain=semantic/model=m/text=t",
+    ):
         (tmp_path / "embeddings" / partition).mkdir(parents=True)
         (tmp_path / "embeddings" / partition / "part-0.parquet").write_bytes(b"")
     return Roots(tmp_path / "data", tmp_path / "embeddings", tmp_path / "app", "latest", 4)
@@ -61,7 +64,8 @@ def test_a_domain_cell_reads_its_datasets_and_writes_its_two_tables(tmp_path: Pa
     roots = _roots(tmp_path)
     cell = domain_cell(roots, "lexical")
     assert cell.inputs == (
-        roots.embeddings_root / "domain=lexical/unit=lexeme/construction=icf/part-0.parquet",
+        roots.embeddings_root
+        / "corpus=bhsa/unit=half_verse/domain=lexical/type=lexeme/construction=icf/part-0.parquet",
     )
     assert [p.name for p in cell.outputs] == ["similarity.parquet", "methods.parquet"]
     assert all("domain=lexical" in p.as_posix() for p in cell.outputs)

@@ -5,11 +5,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from core.datasets import discover_domains
+from core.datasets import discover_domains, domain_root
 from core.driver import Cell
-from core.spec import PART_FILE
+from core.partition import PART_FILE
 
 from tehillim_compare.dataset import ANALYSIS_COMPARE, partition_path, psalms_path
+from tehillim_compare.representation import SCOPE
 from tehillim_compare.ui_export import index_path
 
 CLI_MODULE = "tehillim_compare.cli"
@@ -28,7 +29,7 @@ class Roots:
 
 def domain_datasets(roots: Roots, domain: str) -> tuple[Path, ...]:
     """Every dataset file of one domain, which that domain's cell reads."""
-    return tuple(sorted((roots.embeddings_root / f"domain={domain}").rglob(PART_FILE)))
+    return tuple(sorted(domain_root(roots.embeddings_root, SCOPE, domain).rglob(PART_FILE)))
 
 
 def psalms_cell(roots: Roots) -> Cell:
@@ -97,7 +98,7 @@ def ui_cell(roots: Roots, domains: tuple[str, ...]) -> Cell:
 
 def plan_cells(roots: Roots) -> list[Cell]:
     """The psalm cell, one cell per domain the embeddings tree holds, then the interface cell."""
-    domains = discover_domains(roots.embeddings_root)
+    domains = discover_domains(roots.embeddings_root, SCOPE)
     return [
         psalms_cell(roots),
         *(domain_cell(roots, domain) for domain in domains),

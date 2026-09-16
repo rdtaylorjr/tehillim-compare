@@ -14,7 +14,7 @@ from core.datasets import discover_domains
 from tehillim_compare.corpus import DEFAULT_CHECKOUT, Corpus, Psalm
 from tehillim_compare.dataset import write_domain_tables, write_psalms_table
 from tehillim_compare.pipeline import score_representations
-from tehillim_compare.representation import Representation, discover_representations
+from tehillim_compare.representation import SCOPE, Representation, discover_representations
 from tehillim_compare.ui_export import write_ui_files
 
 #: The psalter this package is built for, so a short corpus is reported rather than assumed.
@@ -77,7 +77,7 @@ def run_domain(
 
 def run_ui(data_root: Path, embeddings_root: Path, ui_root: Path) -> list[Path]:
     """Writes the interface index and matrix files for every domain the embeddings tree holds."""
-    written = write_ui_files(data_root, ui_root, discover_domains(embeddings_root))
+    written = write_ui_files(data_root, ui_root, discover_domains(embeddings_root, SCOPE))
     _report(written[:1])
     print(f"Wrote {len(written) - 1} method files under {ui_root}", file=sys.stderr)
     return written

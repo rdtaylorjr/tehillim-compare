@@ -37,7 +37,10 @@ class _Corpus:
 
 def _embeddings_tree(root: Path) -> Path:
     rng = np.random.default_rng(0)
-    partitions = ("domain=lexical/unit=lexeme/construction=icf", "domain=semantic/model=m/text=t")
+    partitions = (
+        "corpus=bhsa/unit=half_verse/domain=lexical/type=lexeme/construction=icf",
+        "corpus=bhsa/unit=half_verse/domain=semantic/model=m/text=t",
+    )
     for partition in partitions:
         vectors = {node: rng.normal(size=3) for node in (10, 11, 20, 21, 22)}
         write_vectors(root / partition / "part-0.parquet", vectors, "prose")

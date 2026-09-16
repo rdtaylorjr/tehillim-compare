@@ -27,16 +27,28 @@ def _sparse(root: Path, partition: str, description: str = "sparse") -> Path:
 def test_discovers_every_partition_at_any_depth_with_its_domain_and_identifier(
     tmp_path: Path,
 ) -> None:
-    lexical = _dense(tmp_path, "domain=lexical/unit=lexeme/construction=icf", "Lexeme ICF")
-    word = _dense(tmp_path, "domain=lexical/unit=word/text=vocalized")
-    semantic = _dense(tmp_path, "domain=semantic/model=alephbert/text=consonantal")
-    clause = _sparse(tmp_path, "domain=syntactic/level=clause/feature=signature/construction=1gram")
+    lexical = _dense(
+        tmp_path,
+        "corpus=bhsa/unit=half_verse/domain=lexical/type=lexeme/construction=icf",
+        "Lexeme ICF",
+    )
+    word = _dense(
+        tmp_path,
+        "corpus=bhsa/unit=half_verse/domain=lexical/type=word/text=vocalized/construction=icf",
+    )
+    semantic = _dense(
+        tmp_path, "corpus=bhsa/unit=half_verse/domain=semantic/model=alephbert/text=consonantal"
+    )
+    clause = _sparse(
+        tmp_path,
+        "corpus=bhsa/unit=half_verse/domain=syntactic/level=clause/feature=signature/construction=1gram",
+    )
 
     found = discover_representations(tmp_path)
 
     assert found == [
         Representation("lexeme_icf", "lexical", "Lexeme ICF", lexical, sparse=False, dimension=2),
-        Representation("word_vocalized", "lexical", "dense", word, sparse=False, dimension=2),
+        Representation("word_vocalized_icf", "lexical", "dense", word, sparse=False, dimension=2),
         Representation(
             "alephbert_consonantal", "semantic", "dense", semantic, sparse=False, dimension=2
         ),
@@ -47,9 +59,11 @@ def test_discovers_every_partition_at_any_depth_with_its_domain_and_identifier(
 
 
 def test_shuffle_draws_and_non_model_files_are_not_representations(tmp_path: Path) -> None:
-    _dense(tmp_path, "domain=lexical/unit=lexeme/construction=icf")
-    _dense(tmp_path, "domain=lexical/unit=lexeme/construction=icf_shuffle0")
-    (tmp_path / "domain=lexical" / "_manifest.json").write_text("{}")
+    _dense(tmp_path, "corpus=bhsa/unit=half_verse/domain=lexical/type=lexeme/construction=icf")
+    _dense(
+        tmp_path, "corpus=bhsa/unit=half_verse/domain=lexical/type=lexeme/construction=icf_shuffle0"
+    )
+    (tmp_path / "corpus=bhsa/unit=half_verse/domain=lexical" / "_manifest.json").write_text("{}")
 
     assert [r.identifier for r in discover_representations(tmp_path)] == ["lexeme_icf"]
 
@@ -57,3 +71,15 @@ def test_shuffle_draws_and_non_model_files_are_not_representations(tmp_path: Pat
 def test_an_empty_tree_is_an_error_rather_than_an_empty_run(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError, match="no representations"):
         discover_representations(tmp_path)
+
+
+def test_another_scope_of_the_tree_is_not_a_representation(tmp_path: Path) -> None:
+    """The comparison reads the Masoretic half-verse scope only; a scroll's rows are not M's."""
+    _dense(tmp_path, "corpus=bhsa/unit=half_verse/domain=lexical/type=lexeme/construction=icf")
+    _dense(tmp_path, "corpus=bhsa/unit=verse/domain=semantic/model=m/text=consonantal")
+    _dense(
+        tmp_path,
+        "corpus=dss/witness=11Q5/reconstruction=none/unit=verse/domain=semantic/model=m/text=t",
+    )
+
+    assert [r.identifier for r in discover_representations(tmp_path)] == ["lexeme_icf"]

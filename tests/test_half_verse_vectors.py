@@ -20,7 +20,10 @@ HALF_VERSES = {3: [30, 31, 32], 1: [10, 11]}
 
 
 def _dense_path(tmp_path: Path, vectors: dict[int, list[float]]) -> Path:
-    path = tmp_path / "domain=lexical/unit=lexeme/construction=icf/part-0.parquet"
+    path = (
+        tmp_path
+        / "corpus=bhsa/unit=half_verse/domain=lexical/type=lexeme/construction=icf/part-0.parquet"
+    )
     write_vectors(path, {n: np.array(v) for n, v in vectors.items()}, "d")
     return path
 
@@ -43,7 +46,11 @@ def test_dense_rows_are_stacked_in_psalm_then_half_verse_order(tmp_path: Path) -
 
 
 def test_sparse_rows_stay_sparse_in_the_same_order(tmp_path: Path) -> None:
-    path = tmp_path / "domain=syntactic/level=clause/feature=typ/construction=1gram/part-0.parquet"
+    path = (
+        tmp_path
+        / "corpus=bhsa/unit=half_verse/domain=syntactic/level=clause/feature=typ"
+        / "construction=1gram/part-0.parquet"
+    )
     rows = {
         node: (np.array([node % 4], dtype="<i4"), np.array([float(node)], dtype="<f4"))
         for node in (10, 11, 30, 31, 32)
@@ -91,7 +98,11 @@ def test_a_psalm_whose_half_verses_are_all_empty_is_excluded(tmp_path: Path) -> 
 
 
 def test_an_empty_sparse_psalm_is_excluded_too(tmp_path: Path) -> None:
-    path = tmp_path / "domain=syntactic/level=clause/feature=typ/construction=1gram/part-0.parquet"
+    path = (
+        tmp_path
+        / "corpus=bhsa/unit=half_verse/domain=syntactic/level=clause/feature=typ"
+        / "construction=1gram/part-0.parquet"
+    )
     empty = (np.array([], dtype="<i4"), np.array([], dtype="<f4"))
     rows = {10: empty, 11: empty}
     rows.update(

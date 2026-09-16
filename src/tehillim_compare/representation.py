@@ -6,7 +6,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pyarrow.parquet as pq
-from core.datasets import dataset_identifier, dataset_paths, is_sparse_embeddings
+from core.datasets import dataset_identifier, dataset_paths, is_sparse_embeddings, scope_root
+from core.partition import BHSA_HALF_VERSE, Partition, Scope
+
+#: The comparison reads the Masoretic Psalms at the accentual half-verse, the unit its psalm
+#: facts are keyed to; no other scope of the embeddings tree is read.
+SCOPE: Scope = BHSA_HALF_VERSE
 
 
 @dataclass(frozen=True, slots=True)
@@ -19,14 +24,6 @@ class Representation:
     path: Path
     sparse: bool
     dimension: int
-
-
-def _domain_of(path: Path) -> str:
-    """The `domain=` partition the file sits under."""
-    for part in path.parts:
-        if part.startswith("domain="):
-            return part.split("=", 1)[1]
-    raise ValueError(f"{path} sits under no domain= partition")
 
 
 def _describe(path: Path) -> tuple[str, int]:
@@ -44,7 +41,7 @@ def read_representation(path: Path) -> Representation:
     description, dimension = _describe(path)
     return Representation(
         identifier=dataset_identifier(path),
-        domain=_domain_of(path),
+        domain=Partition.parse(path).domain,
         description=description,
         path=path,
         sparse=is_sparse_embeddings(path),
@@ -53,8 +50,9 @@ def read_representation(path: Path) -> Representation:
 
 
 def discover_representations(embeddings_root: Path) -> list[Representation]:
-    """Every model file under the tree in canonical order, excluding order-shuffle draws."""
-    found = [read_representation(path) for path in dataset_paths(embeddings_root)]
+    """Every model file of the scope compared, in canonical order, excluding shuffle draws."""
+    root = scope_root(embeddings_root, SCOPE)
+    found = [read_representation(path) for path in dataset_paths(root)]
     if not found:
-        raise FileNotFoundError(f"no representations under {embeddings_root}")
+        raise FileNotFoundError(f"no representations under {root}")
     return found

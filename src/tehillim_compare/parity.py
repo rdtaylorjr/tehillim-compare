@@ -10,7 +10,7 @@ from core.skips import skipped_in_log
 
 from tehillim_compare.dataset import ANALYSIS_COMPARE, partition_path
 from tehillim_compare.embedding_methods import AGGREGATIONS
-from tehillim_compare.representation import read_representation
+from tehillim_compare.representation import SCOPE, read_representation
 from tehillim_compare.stages import Roots, domain_datasets
 
 
@@ -33,7 +33,7 @@ def check_parity(roots: Roots, log_root: Path) -> dict[str, dict[str, object]]:
     """Compares every domain's table with its datasets, raising on an unexplained gap."""
     report: dict[str, dict[str, object]] = {}
     failures: list[str] = []
-    for domain in discover_domains(roots.embeddings_root):
+    for domain in discover_domains(roots.embeddings_root, SCOPE):
         datasets = {read_representation(p).identifier for p in domain_datasets(roots, domain)}
         scored = scored_representations(roots, domain)
         skipped = skipped_in_log(log_root / f"compare.{domain}.log")

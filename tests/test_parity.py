@@ -15,8 +15,9 @@ from tehillim_compare.stages import Roots
 
 
 def _roots(tmp_path: Path) -> Roots:
-    for partition in ("unit=lexeme/construction=icf", "unit=lexeme/construction=count"):
-        path = tmp_path / "embeddings" / "domain=lexical" / partition / "part-0.parquet"
+    for partition in ("type=lexeme/construction=icf", "type=lexeme/construction=count"):
+        lexical = tmp_path / "embeddings" / "corpus=bhsa/unit=half_verse/domain=lexical"
+        path = lexical / partition / "part-0.parquet"
         write_vectors(path, {1: np.array([1.0, 0.0])}, "d")
     return Roots(tmp_path / "data", tmp_path / "embeddings", tmp_path / "app", "latest", 1)
 
